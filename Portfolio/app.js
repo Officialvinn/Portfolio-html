@@ -1,75 +1,69 @@
-window.addEventListener("load", () => {
+// Apply saved theme immediately to prevent flash
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') document.body.classList.add('dark');
 
-  // Enable animations now that JS is ready
-  document.body.classList.add("js-loaded");
+window.addEventListener('load', function() {
 
-  // Dark mode toggle
-  const themeToggle = document.getElementById("themeToggle");
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "dark") document.body.classList.add("dark");
 
-  themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-    const isDark = document.body.classList.contains("dark");
-    localStorage.setItem("theme", isDark ? "dark" : "light");
+  // ── CV BUTTON: preview on mobile, download on desktop ──
+  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  document.querySelectorAll('.cv-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (isMobile) {
+        window.open('files/Alvin_Njenga_CV.pdf', '_blank');
+      } else {
+        var a = document.createElement('a');
+        a.href = 'files/Alvin_Njenga_CV.pdf';
+        a.download = 'Alvin_Njenga_CV.pdf';
+        a.click();
+      }
+    });
   });
 
-  // Mobile menu
-  const hamburger = document.getElementById("hamburger");
-  const mobileMenu = document.getElementById("mobileMenu");
-  const mobileClose = document.getElementById("mobileClose");
+  // ── DARK MODE TOGGLE ──
+  var toggle = document.getElementById('themeToggle');
+  if (toggle) {
+    toggle.addEventListener('click', function() {
+      document.body.classList.toggle('dark');
+      var isDark = document.body.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+  }
+
+  // ── MOBILE MENU ──
+  var hamburger = document.getElementById('hamburger');
+  var mobileMenu = document.getElementById('mobileMenu');
+  var mobileClose = document.getElementById('mobileClose');
 
   function openMenu() {
-    mobileMenu.classList.add("open");
-    document.body.classList.add("menu-open");
+    mobileMenu.classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
 
   function closeMenu() {
-    mobileMenu.classList.remove("open");
-    document.body.classList.remove("menu-open");
+    mobileMenu.classList.remove('open');
+    document.body.style.overflow = '';
   }
 
-  hamburger.addEventListener("click", openMenu);
-  mobileClose.addEventListener("click", closeMenu);
-  document.querySelectorAll(".mobile-menu a").forEach(l => {
-    l.addEventListener("click", closeMenu);
-  });
-  mobileMenu.addEventListener("click", (e) => {
-    if (e.target === mobileMenu) closeMenu();
+  if (hamburger) hamburger.addEventListener('click', openMenu);
+  if (mobileClose) mobileClose.addEventListener('click', closeMenu);
+
+  document.querySelectorAll('.mobile-menu a').forEach(function(l) {
+    l.addEventListener('click', closeMenu);
   });
 
-  // Scroll reveal
-  const reveals = document.querySelectorAll(".reveal");
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add("visible");
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.05, rootMargin: "0px" });
-  reveals.forEach(r => observer.observe(r));
+  // ── NAV ACTIVE STATE ──
+  var sections = document.querySelectorAll('section[id]');
+  var navLinks = document.querySelectorAll('.nav-links a');
 
-  // Immediately show elements already in viewport
-  setTimeout(() => {
-    reveals.forEach(r => {
-      const rect = r.getBoundingClientRect();
-      if (rect.top < window.innerHeight) {
-        r.classList.add("visible");
-      }
+  window.addEventListener('scroll', function() {
+    var current = '';
+    sections.forEach(function(s) {
+      if (window.pageYOffset >= s.offsetTop - 130) current = s.id;
     });
-  }, 100);
-
-  // Nav active state on scroll
-  const sections = document.querySelectorAll("section[id]");
-  const navLinks = document.querySelectorAll(".nav-links a");
-  window.addEventListener("scroll", () => {
-    let current = "";
-    sections.forEach(s => {
-      if (pageYOffset >= s.offsetTop - 130) current = s.id;
-    });
-    navLinks.forEach(a => {
-      a.style.color = a.getAttribute("href") === "#" + current ? "var(--fg)" : "";
+    navLinks.forEach(function(a) {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--fg)' : '';
     });
   });
 
